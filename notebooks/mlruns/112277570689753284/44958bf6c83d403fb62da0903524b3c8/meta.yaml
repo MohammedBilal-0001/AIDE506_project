@@ -1,0 +1,15 @@
+artifact_uri: file:///g:/LebanseUni/M2/S1/AIDE506-Advanced%20Machine%20learining%20Topics/Project/notebooks/mlruns/112277570689753284/44958bf6c83d403fb62da0903524b3c8/artifacts
+end_time: 1742037600899
+entry_point_name: ''
+experiment_id: '112277570689753284'
+lifecycle_stage: active
+run_id: 44958bf6c83d403fb62da0903524b3c8
+run_name: burly-shoat-86
+run_uuid: 44958bf6c83d403fb62da0903524b3c8
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1742037584496
+status: 3
+tags: []
+user_id: faiz

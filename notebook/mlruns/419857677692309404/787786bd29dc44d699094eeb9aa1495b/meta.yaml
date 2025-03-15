@@ -1,0 +1,16 @@
+artifact_uri: file:///g:/LebanseUni/M2/S1/AIDE506-Advanced%20Machine%20learining%20Topics/Project/notebook/mlruns/419857677692309404/787786bd29dc44d699094eeb9aa1495b/artifacts
+deleted_time: 1742053591605
+end_time: 1742052694477
+entry_point_name: ''
+experiment_id: '419857677692309404'
+lifecycle_stage: deleted
+run_id: 787786bd29dc44d699094eeb9aa1495b
+run_name: dashing-crane-599
+run_uuid: 787786bd29dc44d699094eeb9aa1495b
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1742052683548
+status: 3
+tags: []
+user_id: faiz

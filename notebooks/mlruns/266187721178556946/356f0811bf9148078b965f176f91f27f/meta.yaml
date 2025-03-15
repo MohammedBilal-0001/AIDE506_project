@@ -1,0 +1,15 @@
+artifact_uri: file:///g:/LebanseUni/M2/S1/AIDE506-Advanced%20Machine%20learining%20Topics/Project/notebooks/mlruns/266187721178556946/356f0811bf9148078b965f176f91f27f/artifacts
+end_time: 1741531100537
+entry_point_name: ''
+experiment_id: '266187721178556946'
+lifecycle_stage: active
+run_id: 356f0811bf9148078b965f176f91f27f
+run_name: masked-shad-39
+run_uuid: 356f0811bf9148078b965f176f91f27f
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1741531080308
+status: 3
+tags: []
+user_id: faiz
