@@ -4,7 +4,7 @@ entry_point_name: ''
 experiment_id: '419857677692309404'
 lifecycle_stage: active
 run_id: 4ff625b615a34251b66223640c0d763a
-run_name: clumsy-rat-26
+run_name: Meta model binary metaFeatures
 run_uuid: 4ff625b615a34251b66223640c0d763a
 source_name: ''
 source_type: 4
