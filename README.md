@@ -1,4 +1,3 @@
-```markdown
 # Telco Customer Churn Analysis Project
 
 ## Overview
@@ -135,8 +134,6 @@ Based on the model findings, the following actionable strategies are recommended
 5. **Customer Segmentation**
    * Develop personalized retention strategies for different customer segments based on their predicted churn probability and key influential factors
 
-
-
 ## Technologies Used
 * Python, NumPy, Pandas
 * Scikit-learn, XGBoost, SMOTE
@@ -146,4 +143,3 @@ Based on the model findings, the following actionable strategies are recommended
 
 ## Conclusion
 The stacked ensemble model successfully identifies customers at risk of churning with 84% recall while maintaining good overall performance metrics. The SHAP analysis provides valuable insights into the factors driving customer churn, enabling the development of targeted retention strategies. By implementing the recommended approaches, the telecommunications company can work proactively to improve customer retention and reduce churn.
-```
