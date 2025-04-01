@@ -1,5 +1,5 @@
 # Telco Customer Churn Analysis Project
-
+gitHub repo: https://github.com/MohammedBilal-0001/AIDE506_project
 ## Overview
 This project focuses on analyzing and predicting customer churn for a telecommunications company using machine learning techniques. By identifying factors that contribute to customer churn, this analysis aims to help the company develop strategies to improve customer retention.
 
