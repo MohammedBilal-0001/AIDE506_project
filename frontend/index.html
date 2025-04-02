@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CSV Data Processor</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <div class="container">
+        <h1>CSV Data Processor</h1>
+
+        <div id="error" class="message error-message" style="display: none;"></div>
+        <div id="success" class="message success-message" style="display: none;"></div>
+
+        <div class="upload-section">
+            <div class="upload-container">
+                <div class="file-input-wrapper">
+                    <label for="csvFile" class="file-input-label">
+                        <i class="fas fa-cloud-upload-alt"></i> Choose CSV File
+                        <input type="file" id="csvFile" accept=".csv" class="file-input">
+                    </label>
+                </div>
+                <div id="fileName" class="file-name">No file selected</div>
+                <button id="uploadBtn" class="btn" disabled>Process CSV</button>
+            </div>
+        </div>
+
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p>Processing your file...</p>
+        </div>
+
+        <div class="result-section" id="resultSection">
+            <div class="result-header">
+                <h2 class="result-title">Processed Data</h2>
+                <span class="result-count" id="rowCount">0 rows</span>
+            </div>
+
+            <div class="table-container">
+                <table class="data-table" id="dataTable">
+                    <thead>
+                        <tr id="tableHeader"></tr>
+                    </thead>
+                    <tbody id="tableBody"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+
+</html>
