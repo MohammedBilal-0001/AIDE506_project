@@ -59,10 +59,10 @@ jobs:
     needs: build-and-push
     runs-on: ubuntu-latest
     steps:
-      - name: Install Koyeb CLI
-        run: |
-          curl -s https://cli.koyeb.com/install | sh
-          echo "$HOME/.koyeb/bin" >> $GITHUB_PATH
+      - name: Install and configure the Koyeb CLI
+        uses: koyeb-community/koyeb-actions@v2
+        with:
+          api_token: ${{ secrets.KOYEB_TOKEN }}
           
       - name: Deploy to Koyeb
         run: |
@@ -76,5 +76,4 @@ jobs:
             --env "FLASK_ENV=production" \
             --env "REACT_APP_BACKEND1_URL=https://backend1" \
             --env "REACT_APP_BACKEND2_URL=https://backend2" \
-            --scaling "auto:0-1" \
-            --token ${{ secrets.KOYEB_TOKEN }}
+            --scaling "auto:0-1"
