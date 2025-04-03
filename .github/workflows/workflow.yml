@@ -63,7 +63,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Deploy to Koyeb
-        uses: koyeb/action@v1
+        uses: koyeb/actions@v1
         with:
           koyeb_token: ${{ secrets.KOYEB_TOKEN }}
           service_name: aide-project
