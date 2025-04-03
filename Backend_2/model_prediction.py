@@ -6,19 +6,23 @@ import joblib
 import numpy as np
 import shap
 import mlflow.pyfunc
+import dagshub
 
+
+dagshub.init(repo_owner='MohammedBilal-0001',repo_name='AIDE506_project',mlflow=True)
 # Initialize Flask app
 app = Flask(__name__)
 CORS(app)
 
 # Load the model
 def load_model():
-    model_path = "file:///E:/LU/9_M2_First%20Semester/AIDE505_Machine%20Learning%20Data%20Science%20for%20Production/project_505/notebooks/mlruns/225667749794240171/c3e1c0676f924898bdead3b9e94eba04/artifacts/model"
-    
+    #model_path = "file:///E:/LU/9_M2_First%20Semester/AIDE505_Machine%20Learning%20Data%20Science%20for%20Production/project_505/notebooks/mlruns/225667749794240171/c3e1c0676f924898bdead3b9e94eba04/artifacts/model"
+    xgb_meta_model_url= "runs:/c8ea6a9809514a1bb19f9af3452dec60/model"
     try:
-        model = mlflow.pyfunc.load_model(model_path)
+        #model = mlflow.pyfunc.load_model(model_path)
+        xgb_meta_model= mlflow.sklearn.load_model(xgb_meta_model_url)
         print("Model loaded successfully")
-        return model
+        return xgb_meta_model
     except Exception as e:
         print(f"Error loading model: {e}")
         return None

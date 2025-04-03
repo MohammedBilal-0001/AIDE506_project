@@ -1,0 +1,32 @@
+version: '3.8'
+
+services:
+  backend1:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend1
+    container_name: backend1
+    ports:
+      - "5001:5000" # Adjust the ports as needed
+    volumes:
+      - .:/app
+
+  backend2:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend2
+    container_name: backend2
+    ports:
+      - "5002:5000" # Adjust the ports as needed
+    volumes:
+      - .:/app
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.frontend
+    container_name: frontend
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
