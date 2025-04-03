@@ -30,6 +30,8 @@ services:
     environment:
       - MLFLOW_TRACKING_URI=http://mlflow-server:5000  # Example if using MLflow
       - BACKEND1_URL=http://backend1:5001  # Internal DNS for backend1
+    env_file: 
+      - Backend_2/.env
 
   frontend:
     build:

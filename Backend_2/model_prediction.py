@@ -3,10 +3,26 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 import pandas as pd
 import numpy as np
-import dagshub
+from dagshub import init
+import dagshub.auth as dh_auth
+from dagshub.auth import add_app_token  # Correct import for token authentication
 
+DAGSHUB_TOKEN = os.getenv('DAGSHUB_TOKEN')
 
-dagshub.init(repo_owner='MohammedBilal-0001',repo_name='AIDE506_project',mlflow=True)
+# 2. Validate token exists (for debugging)
+if not DAGSHUB_TOKEN:
+    raise ValueError("DAGSHUB_TOKEN environment variable not set!")
+
+# 3. Authenticate (correct method)
+dh_auth.add_app_token(DAGSHUB_TOKEN)
+
+# 4. Initialize MLflow tracking
+init(
+    repo_owner='MohammedBilal-0001',
+    repo_name='AIDE506_project',
+    mlflow=True
+)
+print("Token loaded:", bool(os.getenv('DAGSHUB_TOKEN')))
 # Initialize Flask app
 app = Flask(__name__)
 CORS(app)
