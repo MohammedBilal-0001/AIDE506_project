@@ -1,0 +1,4 @@
+# Lightweight nginx for production
+FROM nginx:alpine
+COPY . /usr/share/nginx/html
+EXPOSE 80

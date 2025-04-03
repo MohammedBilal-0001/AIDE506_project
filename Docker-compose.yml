@@ -3,23 +3,33 @@ version: '3.8'
 services:
   backend1:
     build:
-      context: .
+      context: ./Backend_1  # Specific context for backend1
       dockerfile: Dockerfile.backend1
     container_name: backend1
     ports:
-      - "5001:5000" # Adjust the ports as needed
+      - "5001:5001"
     volumes:
-      - .:/app
+      - ./Backend_1:/app
+    networks:
+      - aide-network
+    environment:
+      - FLASK_ENV=production
+      - BACKEND2_URL=http://backend2:5002  # Internal DNS for backend2
 
   backend2:
     build:
-      context: .
+      context: ./Backend_2  # Specific context for backend2
       dockerfile: Dockerfile.backend2
     container_name: backend2
     ports:
-      - "5002:5000" # Adjust the ports as needed
+      - "5002:5002"
     volumes:
-      - .:/app
+      - ./Backend_2:/app
+    networks:
+      - aide-network
+    environment:
+      - MLFLOW_TRACKING_URI=http://mlflow-server:5000  # Example if using MLflow
+      - BACKEND1_URL=http://backend1:5001  # Internal DNS for backend1
 
   frontend:
     build:
@@ -27,6 +37,18 @@ services:
       dockerfile: Dockerfile.frontend
     container_name: frontend
     ports:
-      - "3000:3000"
+      - "3000:80"
+    networks:
+      - aide-network
     environment:
       - NODE_ENV=production
+      - REACT_APP_BACKEND1_URL=http://backend1:5001  # ← Changed from localhost
+      - REACT_APP_BACKEND2_URL=http://backend2:5002  # ← Changed from localhost
+    depends_on:
+      - backend1
+      - backend2
+
+networks:
+  aide-network:
+    driver: bridge
+    name: aide-network

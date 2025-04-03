@@ -1,0 +1,21 @@
+# Core Flask
+flask==2.3.2
+flask-cors==4.0.0
+gunicorn==20.1.0
+
+# Data Processing
+pandas==2.0.3
+numpy==1.24.3
+scikit-learn==1.3.0
+openpyxl==3.1.2  # For Excel support if needed
+
+# File Handling
+werkzeug==2.3.7
+
+# Production
+python-dotenv==1.0.0
+waitress==2.1.2  # Alternative WSGI server
+
+# Optional (uncomment if needed)
+# xlrd==2.0.1  # For legacy Excel files
+# pyarrow==12.0.0  # For faster CSV/Parquet
