@@ -1,17 +1,19 @@
 # Backend 2 Dockerfile
-FROM python:3.9-slim
+FROM python:3.11
 
 # Set the working directory
 WORKDIR /app
-
-# Copy the requirements file
+# Copy JUST the requirements file first (for caching)
 COPY requirements.txt .
 
-# Install the dependencies
+# Install dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy the rest of the application code
+# Then copy the rest of the application code
 COPY . .
 
+EXPOSE 5002
+
 # Command to run the application
+#CMD ["/bin/ls", "-l"]
 CMD ["python", "model_prediction.py"]
