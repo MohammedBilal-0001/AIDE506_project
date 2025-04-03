@@ -63,7 +63,7 @@ jobs:
         uses: koyeb-community/koyeb-actions@v2
         with:
           api_token: ${{ secrets.KOYEB_TOKEN }}
-          
+            
       - name: Deploy to Koyeb
         run: |
           koyeb service create aide-project \
@@ -77,4 +77,8 @@ jobs:
             --env "REACT_APP_BACKEND1_URL=https://backend1" \
             --env "REACT_APP_BACKEND2_URL=https://backend2" \
             --min-scale 0 \
-            --max-scale 1
+            --max-scale 1 \
+            --routes "3000:/frontend" \
+            --routes "5001:/backend1" \
+            --routes "5002:/backend2"
+  
