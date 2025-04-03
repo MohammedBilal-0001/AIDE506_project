@@ -59,23 +59,25 @@ jobs:
             ghcr.io/${{ env.LOWER_OWNER }}/frontend:${{ github.sha }}
 
   deploy-to-koyeb:
-    needs: build-and-push
-    runs-on: ubuntu-latest
-    steps:
-      - name: Deploy to Koyeb
-        uses: koyeb/actions@v1
-        with:
-          koyeb_token: ${{ secrets.KOYEB_TOKEN }}
-          service_name: aide-project
-          docker: |
-            ghcr.io/${{ env.LOWER_OWNER }}/backend1:latest
-            ghcr.io/${{ env.LOWER_OWNER }}/backend2:latest
-            ghcr.io/${{ env.LOWER_OWNER }}/frontend:latest
-          ports: "3000:http,5001:http,5002:http" 
-          regions: "fra"
-          env: |
-            NODE_ENV=production
-            FLASK_ENV=production
-            REACT_APP_BACKEND1_URL=https://backend1
-            REACT_APP_BACKEND2_URL=https://backend2
-          scalings: "auto:0-1"  # Free tier optimization
+  needs: build-and-push
+  runs-on: ubuntu-latest
+  steps:
+    - name: Install Koyeb CLI
+      run: |
+        curl -s https://cli.koyeb.com/install | sh
+        echo "$HOME/.koyeb/bin" >> $GITHUB_PATH
+        
+    - name: Deploy to Koyeb
+      run: |
+        koyeb service create aide-project \
+          --docker ghcr.io/${{ env.LOWER_OWNER }}/backend1:latest \
+          --docker ghcr.io/${{ env.LOWER_OWNER }}/backend2:latest \
+          --docker ghcr.io/${{ env.LOWER_OWNER }}/frontend:latest \
+          --ports 3000:http,5001:http,5002:http \
+          --regions fra \
+          --env "NODE_ENV=production" \
+          --env "FLASK_ENV=production" \
+          --env "REACT_APP_BACKEND1_URL=https://backend1" \
+          --env "REACT_APP_BACKEND2_URL=https://backend2" \
+          --scaling "auto:0-1" \
+          --token ${{ secrets.KOYEB_TOKEN }}
