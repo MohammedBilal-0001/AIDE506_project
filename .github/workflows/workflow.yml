@@ -5,6 +5,9 @@ on:
     branches: [main]
   workflow_dispatch:
 
+env:
+  LOWER_OWNER: "mohammedbilal-0001"  # Hardcoded lowercase to avoid pipe issues
+
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
@@ -30,18 +33,20 @@ jobs:
           file: ./Backend_1/Dockerfile.backend1
           push: true
           tags: |
-            ghcr.io/${{ github.repository_owner }}/backend1:latest
-            ghcr.io/${{ github.repository_owner }}/backend1:${{ github.sha }}
+            ghcr.io/${{ env.LOWER_OWNER }}/backend1:latest
+            ghcr.io/${{ env.LOWER_OWNER }}/backend1:${{ github.sha }}
 
-      - name: Build and push Backend 2
+      - name: Build and push Backend 2 (with DagsHub auth)
         uses: docker/build-push-action@v5
         with:
           context: ./Backend_2
           file: ./Backend_2/Dockerfile.backend2
           push: true
+          secrets: |
+            DAGSHUB_TOKEN=${{ secrets.DAGSHUB_TOKEN }}
           tags: |
-            ghcr.io/${{ github.repository_owner }}/backend2:latest
-            ghcr.io/${{ github.repository_owner }}/backend2:${{ github.sha }}
+            ghcr.io/${{ env.LOWER_OWNER }}/backend2:latest
+            ghcr.io/${{ env.LOWER_OWNER }}/backend2:${{ github.sha }}
 
       - name: Build and push Frontend
         uses: docker/build-push-action@v5
@@ -50,8 +55,8 @@ jobs:
           file: ./frontend/Dockerfile.frontend
           push: true
           tags: |
-            ghcr.io/${{ github.repository_owner }}/frontend:latest
-            ghcr.io/${{ github.repository_owner }}/frontend:${{ github.sha }}
+            ghcr.io/${{ env.LOWER_OWNER }}/frontend:latest
+            ghcr.io/${{ env.LOWER_OWNER }}/frontend:${{ github.sha }}
 
   deploy-to-koyeb:
     needs: build-and-push
@@ -63,23 +68,14 @@ jobs:
           koyeb_token: ${{ secrets.KOYEB_TOKEN }}
           service_name: aide-project
           docker: |
-            ghcr.io/${{ github.repository_owner }}/backend1:latest
-            ghcr.io/${{ github.repository_owner }}/backend2:latest
-            ghcr.io/${{ github.repository_owner }}/frontend:latest
-          app_name: aide-project
-          ####################################
-          # Koyeb-specific configuration
-          ####################################
-          ####################################
-          # Koyeb-specific configuration
-          ####################################
-          ports: "3000:http,5001:http,5002:http"
+            ghcr.io/${{ env.LOWER_OWNER }}/backend1:latest
+            ghcr.io/${{ env.LOWER_OWNER }}/backend2:latest
+            ghcr.io/${{ env.LOWER_OWNER }}/frontend:latest
+          ports: "3000:http,5001:http,5002:http" 
           regions: "fra"
-          ####################################
-          # Environment variables
-          ####################################
           env: |
             NODE_ENV=production
             FLASK_ENV=production
             REACT_APP_BACKEND1_URL=https://backend1
             REACT_APP_BACKEND2_URL=https://backend2
+          scalings: "auto:0-1"  # Free tier optimization
