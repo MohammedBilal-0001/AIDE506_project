@@ -76,4 +76,5 @@ jobs:
             --env "FLASK_ENV=production" \
             --env "REACT_APP_BACKEND1_URL=https://backend1" \
             --env "REACT_APP_BACKEND2_URL=https://backend2" \
-            --scaling "auto:0-1"
+            --min-scale 0 \
+            --max-scale 1
