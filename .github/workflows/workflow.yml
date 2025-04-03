@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
 
 env:
-  LOWER_OWNER: "github.repository_owner"
+  LOWER_OWNER: "mohammedbilal-0001"  # Hardcoded lowercase to avoid pipe issues
 
 jobs:
   build-and-push:
@@ -18,11 +18,6 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-
-      - name: Convert to lowercase
-        id: lowercase
-        run: |
-          echo "LOWER_OWNER=$(echo '${{ github.repository_owner }}' | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
 
       - name: Login to GHCR
         uses: docker/login-action@v3
@@ -41,12 +36,14 @@ jobs:
             ghcr.io/${{ env.LOWER_OWNER }}/backend1:latest
             ghcr.io/${{ env.LOWER_OWNER }}/backend1:${{ github.sha }}
 
-      - name: Build and push Backend 2
+      - name: Build and push Backend 2 (with DagsHub auth)
         uses: docker/build-push-action@v5
         with:
           context: ./Backend_2
           file: ./Backend_2/Dockerfile.backend2
           push: true
+          secrets: |
+            DAGSHUB_TOKEN=${{ secrets.DAGSHUB_TOKEN }}
           tags: |
             ghcr.io/${{ env.LOWER_OWNER }}/backend2:latest
             ghcr.io/${{ env.LOWER_OWNER }}/backend2:${{ github.sha }}
@@ -74,10 +71,11 @@ jobs:
             ghcr.io/${{ env.LOWER_OWNER }}/backend1:latest
             ghcr.io/${{ env.LOWER_OWNER }}/backend2:latest
             ghcr.io/${{ env.LOWER_OWNER }}/frontend:latest
-          ports: "3000:http,5001:http,5002:http"
+          ports: "3000:http,5001:http,5002:http" 
           regions: "fra"
           env: |
             NODE_ENV=production
             FLASK_ENV=production
             REACT_APP_BACKEND1_URL=https://backend1
             REACT_APP_BACKEND2_URL=https://backend2
+          scalings: "auto:0-1"  # Free tier optimization
