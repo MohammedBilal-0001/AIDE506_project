@@ -1,4 +1,4 @@
-name: Build and Deploy
+name: Build and Push Images
 
 on:
   push:
@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
 
 env:
-  LOWER_OWNER: "mohammedbilal-0001"  # Hardcoded lowercase to avoid pipe issues
+  LOWER_OWNER: "mohammedbilal-0001"
 
 jobs:
   build-and-push:
@@ -35,7 +35,8 @@ jobs:
           tags: |
             ghcr.io/${{ env.LOWER_OWNER }}/backend1:latest
             ghcr.io/${{ env.LOWER_OWNER }}/backend1:${{ github.sha }}
-      - name: Build and push Backend 2 (with DagsHub auth)
+
+      - name: Build and push Backend 2
         uses: docker/build-push-action@v5
         with:
           context: ./Backend_2
@@ -46,6 +47,7 @@ jobs:
           tags: |
             ghcr.io/${{ env.LOWER_OWNER }}/backend2:latest
             ghcr.io/${{ env.LOWER_OWNER }}/backend2:${{ github.sha }}
+
       - name: Build and push Frontend
         uses: docker/build-push-action@v5
         with:
@@ -55,36 +57,6 @@ jobs:
           tags: |
             ghcr.io/${{ env.LOWER_OWNER }}/frontend:latest
             ghcr.io/${{ env.LOWER_OWNER }}/frontend:${{ github.sha }}
-  deploy-to-koyeb:
-    needs: build-and-push
-    runs-on: ubuntu-latest
-    steps:
-      - name: Install and configure the Koyeb CLI
-        uses: koyeb-community/koyeb-actions@v2
-        with:
-          api_token: ${{ secrets.KOYEB_TOKEN }}
-          
-      - name: Check image existence
-        run: |
-          # Debugging step to verify image accessibility
-          docker pull ghcr.io/${{ env.LOWER_OWNER }}/frontend:latest
-          docker pull ghcr.io/${{ env.LOWER_OWNER }}/backend1:latest
-          docker pull ghcr.io/${{ env.LOWER_OWNER }}/backend2:latest 
-          
-      - name: Deploy to Koyeb
-        run: |
-          koyeb service create aide-project \
-            --docker ghcr.io/${{ env.LOWER_OWNER }}/backend1:latest \
-            --docker ghcr.io/${{ env.LOWER_OWNER }}/frontend:latest \
-            --docker ghcr.io/${{ env.LOWER_OWNER }}/backend2:latest \
-            --ports "3000:http,5001:http,5002:http" \
-            --routes "/frontend:3000,/backend1:5001,/backend2:5002" \
-            --regions fra \
-            --env "NODE_ENV=production" \
-            --env "FLASK_ENV=production" \
-            --env "REACT_APP_BACKEND1_URL=/backend1" \
-            --env "REACT_APP_BACKEND2_URL=/backend2" \
-            --min-scale 0 \
-            --max-scale 1 \
-        env:
-          LOWER_OWNER: mohammedbilal-0001
+
+      - name: Create deployment trigger
+        run: echo "${{ github.sha }}" > .deployment_trigger
