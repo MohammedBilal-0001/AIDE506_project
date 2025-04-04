@@ -3,9 +3,10 @@ name: Build and Deploy
 on:
   push:
     branches: [main]
+  workflow_dispatch:
 
 env:
-  LOWER_OWNER: "mohammedbilal-0001"
+  LOWER_OWNER: "mohammedbilal-0001"  # Hardcoded lowercase to avoid pipe issues
 
 jobs:
   build-and-push:
@@ -13,45 +14,64 @@ jobs:
     permissions:
       packages: write
       contents: read
-    strategy:
-      matrix:
-        include:
-          - name: backend1
-            context: ./Backend_1
-            secrets: ''
-          - name: backend2
-            context: ./Backend_2
-            secrets: 'DAGSHUB_TOKEN=${{ secrets.DAGSHUB_TOKEN }}'
-          - name: frontend
-            context: ./frontend
-            secrets: ''
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-      - name: Docker Login
+      - name: Login to GHCR
         uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build & Push ${{ matrix.name }}
+      - name: Build and push Backend 1
         uses: docker/build-push-action@v5
         with:
-          context: ${{ matrix.context }}
-          tags: ghcr.io/${{ env.LOWER_OWNER }}/${{ matrix.name }}:latest
-          secrets: ${{ matrix.secrets }}
-
+          context: ./Backend_1
+          file: ./Backend_1/Dockerfile.backend1
+          push: true
+          tags: |
+            ghcr.io/${{ env.LOWER_OWNER }}/backend1:latest
+            ghcr.io/${{ env.LOWER_OWNER }}/backend1:${{ github.sha }}
+      - name: Build and push Backend 2 (with DagsHub auth)
+        uses: docker/build-push-action@v5
+        with:
+          context: ./Backend_2
+          file: ./Backend_2/Dockerfile.backend2
+          push: true
+          secrets: |
+            DAGSHUB_TOKEN=${{ secrets.DAGSHUB_TOKEN }}
+          tags: |
+            ghcr.io/${{ env.LOWER_OWNER }}/backend2:latest
+            ghcr.io/${{ env.LOWER_OWNER }}/backend2:${{ github.sha }}
+      - name: Build and push Frontend
+        uses: docker/build-push-action@v5
+        with:
+          context: ./frontend
+          file: ./frontend/Dockerfile.frontend
+          push: true
+          tags: |
+            ghcr.io/${{ env.LOWER_OWNER }}/frontend:latest
+            ghcr.io/${{ env.LOWER_OWNER }}/frontend:${{ github.sha }}
   deploy-to-koyeb:
     needs: build-and-push
     runs-on: ubuntu-latest
     steps:
-      - uses: koyeb-community/koyeb-actions@v2
+      - name: Install and configure the Koyeb CLI
+        uses: koyeb-community/koyeb-actions@v2
         with:
           api_token: ${{ secrets.KOYEB_TOKEN }}
-
-      - name: Deploy Service
+          
+      - name: Check image existence
+        run: |
+          # Debugging step to verify image accessibility
+          docker pull ghcr.io/${{ env.LOWER_OWNER }}/frontend:latest
+          docker pull ghcr.io/${{ env.LOWER_OWNER }}/backend1:latest
+          docker pull ghcr.io/${{ env.LOWER_OWNER }}/backend2:latest 
+          
+      - name: Deploy to Koyeb
         run: |
           koyeb service create aide-project \
             --docker ghcr.io/${{ env.LOWER_OWNER }}/backend1:latest \
@@ -65,5 +85,6 @@ jobs:
             --env "REACT_APP_BACKEND1_URL=/backend1" \
             --env "REACT_APP_BACKEND2_URL=/backend2" \
             --min-scale 0 \
-            --max-scale 1 \
-            -y
+            --max-scale 1
+        env:
+          LOWER_OWNER: mohammedbilal-0001
