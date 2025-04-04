@@ -9,16 +9,24 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
+      # 1. Checkout code
+      - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Setup Railway CLI
-        uses: railwayapp/cli-action@v1
-        with:
-          token: ${{ secrets.RAILWAY_TOKEN }}
+      # 2. Install Railway CLI
+      - name: Install Railway CLI
+        run: |
+          curl -fsSL https://cli.railway.app/install.sh | sh
+          echo "$HOME/.railway/bin" >> $GITHUB_PATH
 
-      - name: Link to Railway Project
+      # 3. Login to Railway
+      - name: Login to Railway
+        run: railway login --token ${{ secrets.RAILWAY_TOKEN }}
+
+      # 4. Link project
+      - name: Link Railway project
         run: railway link ${{ secrets.RAILWAY_PROJECT_ID }}
 
-      - name: Deploy
+      # 5. Deploy
+      - name: Deploy to Railway
         run: railway up --detach
