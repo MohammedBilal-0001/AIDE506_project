@@ -1,0 +1,45 @@
+{
+  "builds": [
+    {
+      "name": "frontend",
+      "path": "./frontend",
+      "dockerfile": "Dockerfile.frontend",
+      "ports": [3000]
+    },
+    {
+      "name": "backend1",
+      "path": "./Backend_1",
+      "dockerfile": "Dockerfile.backend1",
+      "ports": [5001]
+    },
+    {
+      "name": "backend2",
+      "path": "./Backend_2",
+      "dockerfile": "Dockerfile.backend2",
+      "ports": [5002]
+    }
+  ],
+  "routes": [
+    {
+      "src": "/frontend/(.*)",
+      "dest": "/frontend",
+      "port": 3000
+    },
+    {
+      "src": "/backend1/(.*)",
+      "dest": "/backend1",
+      "port": 5001
+    },
+    {
+      "src": "/backend2/(.*)",
+      "dest": "/backend2",
+      "port": 5002
+    }
+  ],
+  "variables": {
+    "NODE_ENV": "production",
+    "FLASK_ENV": "production",
+    "REACT_APP_BACKEND1_URL": "/backend1",
+    "REACT_APP_BACKEND2_URL": "/backend2"
+  }
+}
