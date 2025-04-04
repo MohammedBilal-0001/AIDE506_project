@@ -3,10 +3,9 @@ name: Build and Deploy
 on:
   push:
     branches: [main]
-  workflow_dispatch:
 
 env:
-  LOWER_OWNER: "mohammedbilal-0001"  # Hardcoded lowercase to avoid pipe issues
+  LOWER_OWNER: "mohammedbilal-0001"
 
 jobs:
   build-and-push:
@@ -14,98 +13,57 @@ jobs:
     permissions:
       packages: write
       contents: read
+    strategy:
+      matrix:
+        include:
+          - name: backend1
+            context: ./Backend_1
+            secrets: ''
+          - name: backend2
+            context: ./Backend_2
+            secrets: 'DAGSHUB_TOKEN=${{ secrets.DAGSHUB_TOKEN }}'
+          - name: frontend
+            context: ./frontend
+            secrets: ''
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Login to GHCR
+      - name: Docker Login
         uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build and push Backend 1
+      - name: Build & Push ${{ matrix.name }}
         uses: docker/build-push-action@v5
         with:
-          context: ./Backend_1
-          file: ./Backend_1/Dockerfile.backend1
-          push: true
-          tags: |
-            ghcr.io/${{ env.LOWER_OWNER }}/backend1:latest
-            ghcr.io/${{ env.LOWER_OWNER }}/backend1:${{ github.sha }}
-      - name: Build and push Backend 2 (with DagsHub auth)
-        uses: docker/build-push-action@v5
-        with:
-          context: ./Backend_2
-          file: ./Backend_2/Dockerfile.backend2
-          push: true
-          secrets: |
-            DAGSHUB_TOKEN=${{ secrets.DAGSHUB_TOKEN }}
-          tags: |
-            ghcr.io/${{ env.LOWER_OWNER }}/backend2:latest
-            ghcr.io/${{ env.LOWER_OWNER }}/backend2:${{ github.sha }}
-      - name: Build and push Frontend
-        uses: docker/build-push-action@v5
-        with:
-          context: ./frontend
-          file: ./frontend/Dockerfile.frontend
-          push: true
-          tags: |
-            ghcr.io/${{ env.LOWER_OWNER }}/frontend:latest
-            ghcr.io/${{ env.LOWER_OWNER }}/frontend:${{ github.sha }}
+          context: ${{ matrix.context }}
+          tags: ghcr.io/${{ env.LOWER_OWNER }}/${{ matrix.name }}:latest
+          secrets: ${{ matrix.secrets }}
+
   deploy-to-koyeb:
     needs: build-and-push
     runs-on: ubuntu-latest
     steps:
-      - name: Install and configure the Koyeb CLI
-        uses: koyeb-community/koyeb-actions@v2
+      - uses: koyeb-community/koyeb-actions@v2
         with:
           api_token: ${{ secrets.KOYEB_TOKEN }}
-      
-      - name: Setup Koyeb CLI authentication
+
+      - name: Deploy Service
         run: |
-          mkdir -p ~/.koyeb
-          echo "token: ${{ secrets.KOYEB_TOKEN }}" > ~/.koyeb.yaml 
-          
-      - name: Verify image accessibility
-        run: |
-          # Use curl to check image existence without pulling
-          echo "Checking frontend image..."
-          curl -s -f -L -I https://ghcr.io/v2/${{ env.LOWER_OWNER }}/frontend/manifests/latest || echo "Frontend image not accessible"
-          
-          echo "Checking backend1 image..."
-          curl -s -f -L -I https://ghcr.io/v2/${{ env.LOWER_OWNER }}/backend1/manifests/latest || echo "Backend1 image not accessible"
-          
-          echo "Checking backend2 image..."
-          curl -s -f -L -I https://ghcr.io/v2/${{ env.LOWER_OWNER }}/backend2/manifests/latest || echo "Backend2 image not accessible"
-          
-      - name: Deploy to Koyeb
-        run: |
-          # First check if service exists
-          if koyeb service get aide-project &>/dev/null; then
-            echo "Service exists, redeploying..."
-            koyeb service redeploy aide-project
-          else
-            echo "Creating new service..."
-            koyeb service create aide-project \
-              --docker ghcr.io/${{ env.LOWER_OWNER }}/backend1:latest \
-              --docker ghcr.io/${{ env.LOWER_OWNER }}/backend2:latest \
-              --docker ghcr.io/${{ env.LOWER_OWNER }}/frontend:latest \
-              --ports "3000:http,5001:http,5002:http" \
-              --routes "/frontend:3000,/backend1:5001,/backend2:5002" \
-              --regions fra \
-              --env "NODE_ENV=production" \
-              --env "FLASK_ENV=production" \
-              --env "REACT_APP_BACKEND1_URL=/backend1" \
-              --env "REACT_APP_BACKEND2_URL=/backend2" \
-              --min-scale 0 \
-              --max-scale 1
-          fi
-        
-      - name: Verify deployment
-        run: |
-          echo "Waiting for deployment to complete..."
-          sleep 30
-          koyeb service get aide-project
+          koyeb service create aide-project \
+            --docker ghcr.io/${{ env.LOWER_OWNER }}/backend1:latest \
+            --docker ghcr.io/${{ env.LOWER_OWNER }}/backend2:latest \
+            --docker ghcr.io/${{ env.LOWER_OWNER }}/frontend:latest \
+            --ports "3000:http,5001:http,5002:http" \
+            --routes "/frontend:3000,/backend1:5001,/backend2:5002" \
+            --regions fra \
+            --env "NODE_ENV=production" \
+            --env "FLASK_ENV=production" \
+            --env "REACT_APP_BACKEND1_URL=/backend1" \
+            --env "REACT_APP_BACKEND2_URL=/backend2" \
+            --min-scale 0 \
+            --max-scale 1 \
+            -y
