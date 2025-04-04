@@ -1,0 +1,49 @@
+name: Deploy to Koyeb
+
+on:
+  push:
+    branches: [deploy]  # Only trigger on pushes to 'deploy' branch
+  workflow_dispatch:    # Optional: Allow manual triggers
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: deploy  # Explicitly checkout the deploy branch
+
+      - name: Verify images exist
+        run: |
+          echo "${{ secrets.KOYEB_TOKEN }}" | docker login ghcr.io -u ${{ env.LOWER_OWNER }} --password-stdin
+          for image in backend1 backend2 frontend; do
+            echo "Verifying ghcr.io/${{ env.LOWER_OWNER }}/$image:latest..."
+            docker pull ghcr.io/${{ env.LOWER_OWNER }}/$image:latest || exit 1
+          done
+        env:
+          LOWER_OWNER: mohammedbilal-0001
+
+      - name: Install Koyeb CLI
+        uses: koyeb-community/koyeb-actions@v2
+        with:
+          api_token: ${{ secrets.KOYEB_TOKEN }}
+
+      - name: Deploy to Koyeb
+        run: |
+          koyeb service create aide-project \
+            --docker ghcr.io/${{ env.LOWER_OWNER }}/backend1:latest \
+            --docker ghcr.io/${{ env.LOWER_OWNER }}/frontend:latest \
+            --docker ghcr.io/${{ env.LOWER_OWNER }}/backend2:latest \
+            --ports "3000:http,5001:http,5002:http" \
+            --routes "/frontend:3000,/backend1:5001,/backend2:5002" \
+            --regions fra \
+            --env "NODE_ENV=production" \
+            --env "FLASK_ENV=production" \
+            --env "REACT_APP_BACKEND1_URL=/backend1" \
+            --env "REACT_APP_BACKEND2_URL=/backend2" \
+            --min-scale 0 \
+            --max-scale 1 \
+            --token ${{ secrets.KOYEB_TOKEN }}
+        env:
+          LOWER_OWNER: mohammedbilal-0001
