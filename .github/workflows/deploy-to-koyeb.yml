@@ -2,8 +2,12 @@ name: Deploy to Koyeb
 
 on:
   push:
-    branches: [deploy]  # Only trigger on pushes to 'deploy' branch
-  workflow_dispatch:    # Optional: Allow manual triggers
+    branches: [deploy]
+  workflow_dispatch:
+
+env:
+  LOWER_OWNER: mohammedbilal-0001
+  GHCR_TOKEN: ${{ secrets.GHCR_TOKEN }}  # Added here
 
 jobs:
   deploy:
@@ -17,7 +21,7 @@ jobs:
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+          password: ${{ env.GHCR_TOKEN }}  # Changed to use the env variable
 
       - name: Verify image accessibility
         run: |
@@ -25,8 +29,6 @@ jobs:
             echo "Verifying ghcr.io/${{ env.LOWER_OWNER }}/$image:latest..."
             docker pull ghcr.io/${{ env.LOWER_OWNER }}/$image:latest || exit 1
           done
-        env:
-          LOWER_OWNER: mohammedbilal-0001
 
       - name: Install Koyeb CLI
         uses: koyeb-community/koyeb-actions@v2
@@ -47,6 +49,4 @@ jobs:
             --env "REACT_APP_BACKEND1_URL=/backend1" \
             --env "REACT_APP_BACKEND2_URL=/backend2" \
             --min-scale 0 \
-            --max-scale 1 
-        env:
-          LOWER_OWNER: mohammedbilal-0001
+            --max-scale 1
