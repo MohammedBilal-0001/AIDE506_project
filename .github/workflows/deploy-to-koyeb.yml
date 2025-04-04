@@ -23,13 +23,6 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ env.GHCR_TOKEN }}  # Changed to use the env variable
 
-      - name: Verify image accessibility
-        run: |
-          for image in frontend backend1 backend2; do
-            echo "Verifying ghcr.io/${{ env.LOWER_OWNER }}/$image:latest..."
-            docker pull ghcr.io/${{ env.LOWER_OWNER }}/$image:latest || exit 1
-          done
-
       - name: Install Koyeb CLI
         uses: koyeb-community/koyeb-actions@v2
         with:
@@ -38,6 +31,9 @@ jobs:
       - name: Deploy to Koyeb
         run: |
           koyeb service create aide-project \
+            --docker pull ghcr.io/${{ env.LOWER_OWNER }}/backend1:latest\
+            --docker pull ghcr.io/${{ env.LOWER_OWNER }}/frontend:latest \
+            --docker pull ghcr.io/${{ env.LOWER_OWNER }}/backend2:latest \
             --docker ghcr.io/${{ env.LOWER_OWNER }}/backend1:latest \
             --docker ghcr.io/${{ env.LOWER_OWNER }}/frontend:latest \
             --docker ghcr.io/${{ env.LOWER_OWNER }}/backend2:latest \
