@@ -21,7 +21,7 @@ jobs:
 
       - name: Verify image accessibility
         run: |
-          for image in frontend backend1; do
+          for image in frontend backend1 backend2; do
             echo "Verifying ghcr.io/${{ env.LOWER_OWNER }}/$image:latest..."
             docker pull ghcr.io/${{ env.LOWER_OWNER }}/$image:latest || exit 1
           done
@@ -38,13 +38,15 @@ jobs:
           koyeb service create aide-project \
             --docker ghcr.io/${{ env.LOWER_OWNER }}/backend1:latest \
             --docker ghcr.io/${{ env.LOWER_OWNER }}/frontend:latest \
-            --ports "3000:http,5001:http" \
-            --routes "/frontend:3000,/backend1:5001" \
+            --docker ghcr.io/${{ env.LOWER_OWNER }}/backend2:latest \
+            --ports "3000:http,5001:http,5002:http" \
+            --routes "/frontend:3000,/backend1:5001,/backend2:5002" \
             --regions fra \
             --env "NODE_ENV=production" \
             --env "FLASK_ENV=production" \
             --env "REACT_APP_BACKEND1_URL=/backend1" \
+            --env "REACT_APP_BACKEND2_URL=/backend2" \
             --min-scale 0 \
-            --max-scale 1
+            --max-scale 1 
         env:
           LOWER_OWNER: mohammedbilal-0001
