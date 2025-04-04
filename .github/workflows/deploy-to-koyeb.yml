@@ -39,7 +39,7 @@ jobs:
           --env "FLASK_ENV=production" \
           --min-scale 0 \
           --max-scale 1 \
-          --token "${{ env.GHCR_TOKEN }}"
+          
         
         # Deploy frontend
       - name: Deploy frontend to Koyeb
@@ -54,7 +54,7 @@ jobs:
           --env "REACT_APP_BACKEND2_URL=/backend2" \
           --min-scale 0 \
           --max-scale 1 \
-          --token "${{ env.GHCR_TOKEN }}"
+         
         
         # Deploy backend2
       - name: Deploy backend2 to Koyeb
@@ -67,7 +67,7 @@ jobs:
           --env "FLASK_ENV=production" \
           --min-scale 0 \
           --max-scale 1 \
-          --token "${{ env.GHCR_TOKEN }}"
+          
               
     env:
       LOWER_OWNER: mohammedbilal-0001
