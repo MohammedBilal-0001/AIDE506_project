@@ -1,0 +1,89 @@
+name: Deploy to Koyeb (API Direct Approach)
+on:
+  push:
+    branches: [deploy]
+  workflow_dispatch:
+env:
+  LOWER_OWNER: mohammedbilal-0001
+  GHCR_TOKEN: ${{ secrets.GHCR_TOKEN }}
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ env.GHCR_TOKEN }}
+      
+      # Approach 2: Use Koyeb API directly with curl
+      - name: Deploy backend1 via Koyeb API
+        run: |
+          echo "Deploying backend1 via direct API call..."
+          curl -X POST "https://app.koyeb.com/v1/services" \
+            -H "Authorization: Bearer ${{ secrets.KOYEB_TOKEN }}" \
+            -H "Content-Type: application/json" \
+            -d '{
+              "name": "aide-project-backend1",
+              "definition": {
+                "type": "web",
+                "docker": {
+                  "image": "ghcr.io/mohammedbilal-0001/backend1:latest"
+                },
+                "ports": [{"port": 5001, "protocol": "http"}],
+                "routes": [{"path": "/backend1", "port": 5001}],
+                "regions": ["fra"],
+                "env": [{"key": "FLASK_ENV", "value": "production"}],
+                "scaling": {"min": 0, "max": 1}
+              }
+            }'
+      
+      - name: Deploy frontend via Koyeb API
+        run: |
+          echo "Deploying frontend via direct API call..."
+          curl -X POST "https://app.koyeb.com/v1/services" \
+            -H "Authorization: Bearer ${{ secrets.KOYEB_TOKEN }}" \
+            -H "Content-Type: application/json" \
+            -d '{
+              "name": "aide-project-frontend",
+              "definition": {
+                "type": "web",
+                "docker": {
+                  "image": "ghcr.io/mohammedbilal-0001/frontend:latest"
+                },
+                "ports": [{"port": 3000, "protocol": "http"}],
+                "routes": [{"path": "/frontend", "port": 3000}],
+                "regions": ["fra"],
+                "env": [
+                  {"key": "NODE_ENV", "value": "production"},
+                  {"key": "REACT_APP_BACKEND1_URL", "value": "/backend1"},
+                  {"key": "REACT_APP_BACKEND2_URL", "value": "/backend2"}
+                ],
+                "scaling": {"min": 0, "max": 1}
+              }
+            }'
+      
+      - name: Deploy backend2 via Koyeb API
+        run: |
+          echo "Deploying backend2 via direct API call..."
+          curl -X POST "https://app.koyeb.com/v1/services" \
+            -H "Authorization: Bearer ${{ secrets.KOYEB_TOKEN }}" \
+            -H "Content-Type: application/json" \
+            -d '{
+              "name": "aide-project-backend2",
+              "definition": {
+                "type": "web",
+                "docker": {
+                  "image": "ghcr.io/mohammedbilal-0001/backend2:latest"
+                },
+                "ports": [{"port": 5002, "protocol": "http"}],
+                "routes": [{"path": "/backend2", "port": 5002}],
+                "regions": ["fra"],
+                "env": [{"key": "FLASK_ENV", "value": "production"}],
+                "scaling": {"min": 0, "max": 1}
+              }
+            }'
