@@ -5,26 +5,23 @@ on:
   workflow_dispatch:
 env:
   LOWER_OWNER: mohammedbilal-0001
+  GHCR_TOKEN: ${{ secrets.GHCR_TOKEN }}
 jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ env.GHCR_TOKEN }}
       - name: Install Koyeb CLI
         uses: koyeb-community/koyeb-actions@v2
         with:
           api_token: ${{ secrets.KOYEB_TOKEN }}
-      
-      - name: Create Registry Secret in Koyeb
-        run: |
-          koyeb secret create github-registry \
-            --type registry-private 
-            --docker-hub-username ${{ github.actor }} \
-            ---docker-hub-password ${{ secrets.GITHUB_TOKEN }} \
-            --docker-hub-server ghcr.io
-      
       - name: Deploy Frontend to Koyeb
         run: |
           koyeb service create frontend-service \
@@ -36,9 +33,7 @@ jobs:
             --env "REACT_APP_BACKEND1_URL=/backend1" \
             --env "REACT_APP_BACKEND2_URL=/backend2" \
             --min-scale 0 \
-            --max-scale 1 \
-            --docker-private-registry-secret github-registry
-      
+            --max-scale 1
       - name: Deploy Backend1 to Koyeb
         run: |
           koyeb service create backend1-service \
@@ -48,9 +43,7 @@ jobs:
             --regions fra \
             --env "FLASK_ENV=production" \
             --min-scale 0 \
-            --max-scale 1 \
-            --docker-private-registry-secret github-registry
-      
+            --max-scale 1
       - name: Deploy Backend2 to Koyeb
         run: |
           koyeb service create backend2-service \
@@ -60,5 +53,4 @@ jobs:
             --regions fra \
             --env "FLASK_ENV=production" \
             --min-scale 0 \
-            --max-scale 1 \
-            --docker-private-registry-secret github-registry
+            --max-scale 1
