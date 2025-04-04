@@ -1,72 +1,38 @@
 name: Deploy to Koyeb
-
 on:
   push:
     branches: [deploy]
   workflow_dispatch:
-
 env:
   LOWER_OWNER: mohammedbilal-0001
-  GHCR_TOKEN: ${{ secrets.GHCR_TOKEN }}  # Added here
-
+  GHCR_TOKEN: ${{ secrets.GHCR_TOKEN }}
 jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-
+      
       - name: Login to GitHub Container Registry
         uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
-          password: ${{ env.GHCR_TOKEN }}  # Changed to use the env variable
-
+          password: ${{ env.GHCR_TOKEN }}
+      
       - name: Install Koyeb CLI
         uses: koyeb-community/koyeb-actions@v2
         with:
           api_token: ${{ secrets.KOYEB_TOKEN }}
-
       
       - name: Deploy backend1 to Koyeb
         run: |
-          koyeb service create aide-project-backend1 \
-          --docker ghcr.io/mohammedbilal-0001/backend1:latest \
-          --ports 5001:http \
-          --routes "/backend1:5001" \
-          --regions fra \
-          --env "FLASK_ENV=production" \
-          --min-scale 0 \
-          --max-scale 1 \
-          
-        
-        # Deploy frontend
+          koyeb service create aide-project-backend1 --docker ghcr.io/mohammedbilal-0001/backend1:latest --ports 5001:http --routes "/backend1:5001" --regions fra --env "FLASK_ENV=production" --min-scale 0 --max-scale 1 --token ${{ secrets.KOYEB_TOKEN }}
+      
       - name: Deploy frontend to Koyeb
         run: |
-          koyeb service create aide-project-frontend \
-          --docker ghcr.io/mohammedbilal-0001/frontend:latest \
-          --ports 3000:http \
-          --routes "/frontend:3000" \
-          --regions fra \
-          --env "NODE_ENV=production" \
-          --env "REACT_APP_BACKEND1_URL=/backend1" \
-          --env "REACT_APP_BACKEND2_URL=/backend2" \
-          --min-scale 0 \
-          --max-scale 1 \
-         
-        
-        # Deploy backend2
+          koyeb service create aide-project-frontend --docker ghcr.io/mohammedbilal-0001/frontend:latest --ports 3000:http --routes "/frontend:3000" --regions fra --env "NODE_ENV=production" --env "REACT_APP_BACKEND1_URL=/backend1" --env "REACT_APP_BACKEND2_URL=/backend2" --min-scale 0 --max-scale 1 --token ${{ secrets.KOYEB_TOKEN }}
+      
       - name: Deploy backend2 to Koyeb
         run: |
-          koyeb service create aide-project-backend2 \
-          --docker ghcr.io/mohammedbilal-0001/backend2:latest \
-          --ports 5002:http \
-          --routes "/backend2:5002" \
-          --regions fra \
-          --env "FLASK_ENV=production" \
-          --min-scale 0 \
-          --max-scale 1 \
-          
-              
-    
+          koyeb service create aide-project-backend2 --docker ghcr.io/mohammedbilal-0001/backend2:latest --ports 5002:http --routes "/backend2:5002" --regions fra --env "FLASK_ENV=production" --min-scale 0 --max-scale 1 --token ${{ secrets.KOYEB_TOKEN }}
