@@ -59,11 +59,11 @@ jobs:
     needs: build-and-push
     runs-on: ubuntu-latest
     steps:
-      - name: Install Koyeb CLI
+      - name: Install and configure the Koyeb CLI
         uses: koyeb-community/koyeb-actions@v2
         with:
           api_token: ${{ secrets.KOYEB_TOKEN }}
-  
+            
       - name: Deploy to Koyeb
         run: |
           koyeb service create aide-project \
@@ -79,3 +79,6 @@ jobs:
             --env "REACT_APP_BACKEND2_URL=/backend2" \
             --min-scale 0 \
             --max-scale 1
+        env:
+          LOWER_OWNER: mohammedbilal-0001
+
