@@ -69,6 +69,4 @@ jobs:
           --max-scale 1 \
           
               
-    env:
-      LOWER_OWNER: mohammedbilal-0001
-      GHCR_TOKEN: ${{ secrets.GHCR_TOKEN }}
+    
