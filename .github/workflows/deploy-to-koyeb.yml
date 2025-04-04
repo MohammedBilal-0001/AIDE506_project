@@ -20,16 +20,10 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ env.GHCR_TOKEN }}
       
-      - name: Install Latest Koyeb CLI
-        run: |
-          curl -sSL https://github.com/koyeb/koyeb-cli/releases/latest/download/koyeb-cli_latest_linux_amd64.tar.gz | tar xz
-          sudo mv koyeb /usr/local/bin/
-          koyeb version
-      
-      - name: Configure Koyeb CLI
-        run: |
-          koyeb config set default-region fra
-          koyeb config set token ${{ secrets.KOYEB_TOKEN }}
+      - name: Install Koyeb CLI
+        uses: koyeb-community/koyeb-actions@v2
+        with:
+          api_token: ${{ secrets.KOYEB_TOKEN }}
       
       - name: Verify Images Accessibility
         run: |
@@ -41,10 +35,9 @@ jobs:
           docker pull ghcr.io/${{ env.LOWER_OWNER }}/backend2:latest
           echo "All images exist and are accessible"
       
-      - name: Deploy Frontend to Koyeb with Verbose Logging
+      - name: Deploy Frontend to Koyeb with Debug Mode
         run: |
-          set -x
-          koyeb service create frontend-service \
+          koyeb --debug service create frontend-service \
             --docker ghcr.io/${{ env.LOWER_OWNER }}/frontend:latest \
             --ports 3000:http \
             --routes "/frontend:3000" \
@@ -53,31 +46,26 @@ jobs:
             --env "REACT_APP_BACKEND1_URL=/backend1" \
             --env "REACT_APP_BACKEND2_URL=/backend2" \
             --min-scale 0 \
-            --max-scale 1 \
-            --registry-provider github
+            --max-scale 1
       
-      - name: Deploy Backend1 to Koyeb with Verbose Logging
+      - name: Deploy Backend1 to Koyeb with Debug Mode
         run: |
-          set -x
-          koyeb service create backend1-service \
+          koyeb --debug service create backend1-service \
             --docker ghcr.io/${{ env.LOWER_OWNER }}/backend1:latest \
             --ports 5001:http \
             --routes "/backend1:5001" \
             --regions fra \
             --env "FLASK_ENV=production" \
             --min-scale 0 \
-            --max-scale 1 \
-            --registry-provider github
+            --max-scale 1
       
-      - name: Deploy Backend2 to Koyeb with Verbose Logging
+      - name: Deploy Backend2 to Koyeb with Debug Mode
         run: |
-          set -x
-          koyeb service create backend2-service \
+          koyeb --debug service create backend2-service \
             --docker ghcr.io/${{ env.LOWER_OWNER }}/backend2:latest \
             --ports 5002:http \
             --routes "/backend2:5002" \
             --regions fra \
             --env "FLASK_ENV=production" \
             --min-scale 0 \
-            --max-scale 1 \
-            --registry-provider github
+            --max-scale 1
