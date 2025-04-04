@@ -27,12 +27,40 @@ jobs:
       
       - name: Deploy backend1 to Koyeb
         run: |
-          koyeb service create aide-project-backend1 --docker ghcr.io/mohammedbilal-0001/backend1:latest --ports 5001:http --routes "/backend1:5001" --regions fra --env "FLASK_ENV=production" --min-scale 0 --max-scale 1 --token ${{ env.GHCR_TOKEN }}
+          koyeb service create aide-project-backend1 \
+            --docker ghcr.io/mohammedbilal-0001/backend1:latest \
+            --ports 5001:http \
+            --routes "/backend1:5001" \
+            --regions fra \
+            --env "FLASK_ENV=production" \
+            --min-scale 0 \
+            --max-scale 1
       
       - name: Deploy frontend to Koyeb
         run: |
-          koyeb service create aide-project-frontend --docker ghcr.io/mohammedbilal-0001/frontend:latest --ports 3000:http --routes "/frontend:3000" --regions fra --env "NODE_ENV=production" --env "REACT_APP_BACKEND1_URL=/backend1" --env "REACT_APP_BACKEND2_URL=/backend2" --min-scale 0 --max-scale 1 --token ${{ env.GHCR_TOKEN }}
+          koyeb service create aide-project-frontend \
+            --docker ghcr.io/mohammedbilal-0001/frontend:latest \
+            --ports 3000:http \
+            --routes "/frontend:3000" \
+            --regions fra \
+            --env "NODE_ENV=production" \
+            --env "REACT_APP_BACKEND1_URL=/backend1" \
+            --env "REACT_APP_BACKEND2_URL=/backend2" \
+            --min-scale 0 \
+            --max-scale 1
       
       - name: Deploy backend2 to Koyeb
         run: |
-          koyeb service create aide-project-backend2 --docker ghcr.io/mohammedbilal-0001/backend2:latest --ports 5002:http --routes "/backend2:5002" --regions fra --env "FLASK_ENV=production" --min-scale 0 --max-scale 1 --token ${{ env.GHCR_TOKEN }}
+          koyeb service create aide-project-backend2 \
+            --docker ghcr.io/mohammedbilal-0001/backend2:latest \
+            --ports 5002:http \
+            --routes "/backend2:5002" \
+            --regions fra \
+            --env "FLASK_ENV=production" \
+            --min-scale 0 \
+            --max-scale 1
+      
+      - name: Check deployment status
+        run: |
+          echo "Checking deployment status..."
+          koyeb service list
