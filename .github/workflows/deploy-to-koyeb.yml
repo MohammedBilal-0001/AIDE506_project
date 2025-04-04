@@ -11,13 +11,17 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-        with:
-          ref: deploy  # Explicitly checkout the deploy branch
 
-      - name: Verify images exist
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Verify image accessibility
         run: |
-          echo "${{ secrets.KOYEB_TOKEN }}" | docker login ghcr.io -u ${{ env.LOWER_OWNER }} --password-stdin
-          for image in backend1 backend2 frontend; do
+          for image in frontend backend1 backend2; do
             echo "Verifying ghcr.io/${{ env.LOWER_OWNER }}/$image:latest..."
             docker pull ghcr.io/${{ env.LOWER_OWNER }}/$image:latest || exit 1
           done
