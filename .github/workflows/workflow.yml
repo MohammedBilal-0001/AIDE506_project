@@ -71,14 +71,11 @@ jobs:
             --docker ghcr.io/${{ env.LOWER_OWNER }}/backend2:latest \
             --docker ghcr.io/${{ env.LOWER_OWNER }}/frontend:latest \
             --ports "3000:http,5001:http,5002:http" \
+            --routes "/frontend:3000,/backend1:5001,/backend2:5002" \
             --regions fra \
             --env "NODE_ENV=production" \
             --env "FLASK_ENV=production" \
-            --env "REACT_APP_BACKEND1_URL=https://backend1" \
-            --env "REACT_APP_BACKEND2_URL=https://backend2" \
+            --env "REACT_APP_BACKEND1_URL=/backend1" \
+            --env "REACT_APP_BACKEND2_URL=/backend2" \
             --min-scale 0 \
-            --max-scale 1 \
-            --routes "3000:/frontend" \
-            --routes "5001:/backend1" \
-            --routes "5002:/backend2"
-  
+            --max-scale 1
