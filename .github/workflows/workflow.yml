@@ -1,68 +1,60 @@
-name: Deploy to Koyeb
+name: Build and Deploy
 
 on:
   push:
-    branches: [ main ]  # Adjust branch name as needed
+    branches: [main]
+  workflow_dispatch:
 
 env:
-  LOWER_OWNER: mohammedbilal-0001
+  LOWER_OWNER: "mohammedbilal-0001"  # Hardcoded lowercase to avoid pipe issues
 
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
+    permissions:
+      packages: write
+      contents: read
+
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
-
-      - name: Login to GitHub Container Registry
-        uses: docker/login-action@v2
+      - name: Login to GHCR
+        uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build and push frontend image
-        uses: docker/build-push-action@v4
+      - name: Build and push Backend 1
+        uses: docker/build-push-action@v5
         with:
-          context: ./frontend  # Adjust path as needed
+          context: ./Backend_1
+          file: ./Backend_1/Dockerfile.backend1
           push: true
-          tags: ghcr.io/${{ env.LOWER_OWNER }}/frontend:latest
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
-
-      - name: Build and push backend1 image
-        uses: docker/build-push-action@v4
+          tags: |
+            ghcr.io/${{ env.LOWER_OWNER }}/backend1:latest
+            ghcr.io/${{ env.LOWER_OWNER }}/backend1:${{ github.sha }}
+      - name: Build and push Backend 2 (with DagsHub auth)
+        uses: docker/build-push-action@v5
         with:
-          context: ./backend1  # Adjust path as needed
+          context: ./Backend_2
+          file: ./Backend_2/Dockerfile.backend2
           push: true
-          tags: ghcr.io/${{ env.LOWER_OWNER }}/backend1:latest
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
-
-      - name: Build and push backend2 image
-        uses: docker/build-push-action@v4
+          secrets: |
+            DAGSHUB_TOKEN=${{ secrets.DAGSHUB_TOKEN }}
+          tags: |
+            ghcr.io/${{ env.LOWER_OWNER }}/backend2:latest
+            ghcr.io/${{ env.LOWER_OWNER }}/backend2:${{ github.sha }}
+      - name: Build and push Frontend
+        uses: docker/build-push-action@v5
         with:
-          context: ./backend2  # Adjust path as needed
+          context: ./frontend
+          file: ./frontend/Dockerfile.frontend
           push: true
-          tags: ghcr.io/${{ env.LOWER_OWNER }}/backend2:latest
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
-
-      - name: Make images public
-        run: |
-          # Use GitHub API to make the packages public
-          # Note: This requires a PAT with appropriate permissions
-          for pkg in frontend backend1 backend2; do
-            curl -X PATCH \
-              -H "Accept: application/vnd.github.v3+json" \
-              -H "Authorization: token ${{ secrets.PACKAGE_PAT }}" \
-              https://api.github.com/user/packages/container/$pkg/visibility \
-              -d '{"visibility":"public"}'
-          done
-
+          tags: |
+            ghcr.io/${{ env.LOWER_OWNER }}/frontend:latest
+            ghcr.io/${{ env.LOWER_OWNER }}/frontend:${{ github.sha }}
   deploy-to-koyeb:
     needs: build-and-push
     runs-on: ubuntu-latest
