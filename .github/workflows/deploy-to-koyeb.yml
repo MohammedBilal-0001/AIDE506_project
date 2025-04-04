@@ -47,7 +47,6 @@ jobs:
             --env "REACT_APP_BACKEND1_URL=/backend1" \
             --env "REACT_APP_BACKEND2_URL=/backend2" \
             --min-scale 0 \
-            --max-scale 1 \
-            --token ${{ secrets.KOYEB_TOKEN }}
+            --max-scale 1 
         env:
           LOWER_OWNER: mohammedbilal-0001
