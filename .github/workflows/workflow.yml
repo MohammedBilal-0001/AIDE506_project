@@ -64,10 +64,10 @@ jobs:
         with:
           api_token: ${{ secrets.KOYEB_TOKEN }}
       
-      # Note: The explicit login step is optional since koyeb-actions already configures authentication
-      # If you want to include it for clarity, use the correct syntax below:
-      - name: Explicitly login to Koyeb
-        run: koyeb login --token "${{ secrets.KOYEB_TOKEN }}"
+      - name: Setup Koyeb CLI authentication
+        run: |
+          mkdir -p ~/.koyeb
+          echo "token: ${{ secrets.KOYEB_TOKEN }}" > ~/.koyeb.yaml 
           
       - name: Verify image accessibility
         run: |
