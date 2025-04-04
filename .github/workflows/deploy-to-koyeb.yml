@@ -20,10 +20,10 @@ jobs:
       - name: Create Registry Secret in Koyeb
         run: |
           koyeb secret create github-registry \
-            --type registry-private \
-            --registry-server ghcr.io \
-            --registry-username ${{ github.actor }} \
-            --registry-password ${{ secrets.GITHUB_TOKEN }}
+            --type registry-private 
+            --docker-hub-username ${{ github.actor }} \
+            ---docker-hub-password ${{ secrets.GITHUB_TOKEN }} \
+            --docker-hub-server ghcr.io
       
       - name: Deploy Frontend to Koyeb
         run: |
