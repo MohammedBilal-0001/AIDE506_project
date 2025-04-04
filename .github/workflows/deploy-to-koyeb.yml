@@ -20,7 +20,7 @@ jobs:
       - name: Create Registry Secret in Koyeb
         run: |
           koyeb secret create github-registry \
-            --type registry \
+            --type registry-private \
             --registry-server ghcr.io \
             --registry-username ${{ github.actor }} \
             --registry-password ${{ secrets.GITHUB_TOKEN }}
