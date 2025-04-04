@@ -38,9 +38,9 @@ jobs:
       - name: Deploy to Koyeb
         run: |
           koyeb service create aide-project \
-            --docker ghcr.io/mohammedbilal-0001/backend1:latest \
-            --docker ghcr.io/mohammedbilal-0001/frontend:latest \
-            --docker ghcr.io/mohammedbilal-0001/backend2:latest \
+            --docker ghcr.io/${{ env.LOWER_OWNER }}/backend1:latest \
+            --docker ghcr.io/${{ env.LOWER_OWNER }}/frontend:latest \
+            --docker ghcr.io/${{ env.LOWER_OWNER }}/backend2:latest \
             --ports "3000:http,5001:http,5002:http" \
             --routes "/frontend:3000,/backend1:5001,/backend2:5002" \
             --regions fra \
@@ -50,4 +50,7 @@ jobs:
             --env "REACT_APP_BACKEND2_URL=/backend2" \
             --min-scale 0 \
             --max-scale 1 \
-            --token $GHCR_TOKEN 
+            --token "${{ env.GHCR_TOKEN }}"  # Properly quoted token
+    env:
+      LOWER_OWNER: mohammedbilal-0001
+      GHCR_TOKEN: ${{ secrets.GHCR_TOKEN }}
