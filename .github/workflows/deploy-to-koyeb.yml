@@ -20,6 +20,12 @@ jobs:
         with:
           api_token: ${{ secrets.KOYEB_TOKEN }}
 
+      - name: Login to Docker Hub
+        run: |
+          koyeb docker login \
+            --username ${{ env.DOCKERHUB_USERNAME }} \
+            --password ${{ secrets.DOCKERHUB_TOKEN }}
+
       - name: Deploy to Koyeb
         run: |
           koyeb service create aide-project \
@@ -34,6 +40,4 @@ jobs:
             --env "REACT_APP_BACKEND1_URL=/backend1" \
             --env "REACT_APP_BACKEND2_URL=/backend2" \
             --min-scale 0 \
-            --max-scale 1 \
-            --docker-hub-username ${{ env.DOCKERHUB_USERNAME }} \
-            --docker-hub-password ${{ secrets.DOCKERHUB_TOKEN }}
+            --max-scale 1
