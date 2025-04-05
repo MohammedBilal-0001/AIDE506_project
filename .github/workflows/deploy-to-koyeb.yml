@@ -2,12 +2,11 @@ name: Deploy to Koyeb
 
 on:
   push:
-    branches: [deploy]
+    branches: [main]
   workflow_dispatch:
 
 env:
-  LOWER_OWNER: mohammedbilal-0001
-  GHCR_TOKEN: ${{ secrets.GHCR_TOKEN }}  # Added here
+  DOCKERHUB_USERNAME: "acebm"
 
 jobs:
   deploy:
@@ -15,13 +14,6 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-
-      - name: Login to GitHub Container Registry
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ env.GHCR_TOKEN }}  # Changed to use the env variable
 
       - name: Install Koyeb CLI
         uses: koyeb-community/koyeb-actions@v2
@@ -31,9 +23,9 @@ jobs:
       - name: Deploy to Koyeb
         run: |
           koyeb service create aide-project \
-            --docker ghcr.io/${{ env.LOWER_OWNER }}/backend1:latest \
-            --docker ghcr.io/${{ env.LOWER_OWNER }}/frontend:latest \
-            --docker ghcr.io/${{ env.LOWER_OWNER }}/backend2:latest \
+            --docker ${{ env.DOCKERHUB_USERNAME }}/backend1:latest \
+            --docker ${{ env.DOCKERHUB_USERNAME }}/frontend:latest \
+            --docker ${{ env.DOCKERHUB_USERNAME }}/backend2:latest \
             --ports "3000:http,5001:http,5002:http" \
             --routes "/frontend:3000,/backend1:5001,/backend2:5002" \
             --regions fra \
@@ -42,8 +34,4 @@ jobs:
             --env "REACT_APP_BACKEND1_URL=/backend1" \
             --env "REACT_APP_BACKEND2_URL=/backend2" \
             --min-scale 0 \
-            --max-scale 1 \
-            --token "${{ env.GHCR_TOKEN }}"  # Properly quoted token
-    env:
-      LOWER_OWNER: mohammedbilal-0001
-      GHCR_TOKEN: ${{ secrets.GHCR_TOKEN }}
+            --max-scale 1
