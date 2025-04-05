@@ -35,4 +35,4 @@ jobs:
             --env "REACT_APP_BACKEND2_URL=/backend2" \
             --min-scale 0 \
             --max-scale 1 \
-            --token ${{ secrets.DOCKERHUB_TOKEN }}
+            --docker-hub-secret ${{ secrets.DOCKERHUB_TOKEN }}
