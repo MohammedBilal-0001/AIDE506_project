@@ -2,7 +2,7 @@ name: Deploy to Koyeb
 
 on:
   push:
-    branches: [main]
+    branches: [Deploy_with_DH]
   workflow_dispatch:
 
 env:
@@ -34,4 +34,6 @@ jobs:
             --env "REACT_APP_BACKEND1_URL=/backend1" \
             --env "REACT_APP_BACKEND2_URL=/backend2" \
             --min-scale 0 \
-            --max-scale 1
+            --max-scale 1 \
+            --docker-hub-username ${{ env.DOCKERHUB_USERNAME }} \
+            --docker-hub-password ${{ secrets.DOCKERHUB_TOKEN }}
