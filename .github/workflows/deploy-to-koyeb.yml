@@ -20,11 +20,11 @@ jobs:
         with:
           api_token: ${{ secrets.KOYEB_TOKEN }}
 
-      - name: Login to Docker Hub
+      - name: Create Docker Hub secret in Koyeb
         run: |
-          koyeb docker login \
-            --username ${{ env.DOCKERHUB_USERNAME }} \
-            --password ${{ secrets.DOCKERHUB_TOKEN }}
+          koyeb secret create docker-hub-cred \
+            --value "username=${{ env.DOCKERHUB_USERNAME }}:password=${{ secrets.DOCKERHUB_TOKEN }}" \
+            --type docker-hub
 
       - name: Deploy to Koyeb
         run: |
@@ -40,4 +40,5 @@ jobs:
             --env "REACT_APP_BACKEND1_URL=/backend1" \
             --env "REACT_APP_BACKEND2_URL=/backend2" \
             --min-scale 0 \
-            --max-scale 1
+            --max-scale 1 \
+            --docker-hub-secret docker-hub-cred
