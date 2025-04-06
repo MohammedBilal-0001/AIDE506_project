@@ -24,7 +24,7 @@ jobs:
           KOYEB_TOKEN: ${{ secrets.KOYEB_TOKEN }}  # GitHub Secret
         run: |
           # Deploy ONLY the frontend container
-          koyeb --token $KOYEB_TOKEN service create aide-project-frontend \
+          koyeb  service create aide-project-frontend \
             acebm/frontend:latest \  # Docker image as positional argument (no --docker flag)
             --ports "3000:http" \
             --routes "/:3000" \
@@ -32,7 +32,8 @@ jobs:
             --env "REACT_APP_BACKEND1_URL=/backend1" \
             --env "REACT_APP_BACKEND2_URL=/backend2" \
             --min-scale 0 \
-            --max-scale 1
+            --max-scale 1 \
+            --token $KOYEB_TOKEN
       - name: Deploy to Koyeb
         env:
           KOYEB_TOKEN: ${{ secrets.KOYEB_TOKEN }}  # GitHub Secret
