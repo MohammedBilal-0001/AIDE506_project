@@ -21,9 +21,10 @@ jobs:
           api_token: ${{ secrets.KOYEB_TOKEN }}
 
       - name: Deploy to Koyeb
+        env:
+          KOYEB_TOKEN: ${{ secrets.KOYEB_TOKEN }}  # GitHub Secret
         run: |
-          koyeb login --token ${{ secrets.KOYEB_TOKEN }}
-          koyeb service create aide-project \
+          koyeb  --token $KOYEB_TOKEN service create aide-project \
             --docker ${{ env.DOCKERHUB_USERNAME }}/backend1:latest \
             --docker ${{ env.DOCKERHUB_USERNAME }}/frontend:latest \
             --docker ${{ env.DOCKERHUB_USERNAME }}/backend2:latest \
