@@ -22,6 +22,7 @@ jobs:
 
       - name: Deploy to Koyeb
         run: |
+          koyeb auth login --token ${{ secrets.KOYEB_TOKEN }}
           koyeb service create aide-project \
             --docker ${{ env.DOCKERHUB_USERNAME }}/backend1:latest \
             --docker ${{ env.DOCKERHUB_USERNAME }}/frontend:latest \
