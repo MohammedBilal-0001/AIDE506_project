@@ -19,7 +19,20 @@ jobs:
         uses: koyeb-community/koyeb-actions@v2
         with:
           api_token: ${{ secrets.KOYEB_TOKEN }}
-
+      - name: Deploy Frontend to Koyeb
+        env:
+          KOYEB_TOKEN: ${{ secrets.KOYEB_TOKEN }}  # GitHub Secret
+        run: |
+          # Deploy ONLY the frontend container
+          koyeb --token $KOYEB_TOKEN service create aide-project-frontend \
+            --docker acebm/frontend:latest \
+            --ports "3000:http" \
+            --routes "/:3000" \
+            --regions fra \
+            --env "REACT_APP_BACKEND1_URL=/backend1" \  # Optional: Only if your frontend needs these
+            --env "REACT_APP_BACKEND2_URL=/backend2" \
+            --min-scale 0 \
+            --max-scale 1
       - name: Deploy to Koyeb
         env:
           KOYEB_TOKEN: ${{ secrets.KOYEB_TOKEN }}  # GitHub Secret
