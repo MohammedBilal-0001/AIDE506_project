@@ -20,9 +20,9 @@ jobs:
           
           docker run --rm \
             koyeb/koyeb-cli service create churn-detection/aide-project-b-f \
-             --docker ghcr.io/${{ env.LOWER_OWNER }}/backend1:latest \
-             --docker ghcr.io/${{ env.LOWER_OWNER }}/frontend:latest \
-             --docker ghcr.io/${{ env.LOWER_OWNER }}/backend2:latest \
+             --docker acebm/backend:latest \
+             --docker acebm/frontend:latest \
+             --docker acebm/backend2:latest \
              --ports "3000:http,5001:http,5002:http" \
              --routes "/frontend:3000,/backend1:5001,/backend2:5002" \
              --regions fra \
