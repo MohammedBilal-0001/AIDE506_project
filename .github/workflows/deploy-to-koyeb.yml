@@ -18,7 +18,7 @@ jobs:
       - name: Deploy Frontend (Docker CLI)
         run: |
           docker run --rm \
-            koyeb/koyeb-cli service create aide-project-frontend \
+            koyeb/koyeb-cli service create churn-detection/aide-project-frontend \
               --docker acebm/frontend:latest \
               --ports "3000:http" \
               --routes "/:3000" \
