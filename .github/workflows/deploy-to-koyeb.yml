@@ -17,6 +17,9 @@ jobs:
 
       - name: Deploy Frontend (Docker CLI)
         run: |
+          docker run --rm \
+          koyeb/koyeb-cli service delete churn-detection/aide-project-b-f \
+          --token "${{ secrets.KOYEB_API_TOKEN }}"
           
           docker run --rm \
             koyeb/koyeb-cli service create churn-detection/aide-project-b-f \
