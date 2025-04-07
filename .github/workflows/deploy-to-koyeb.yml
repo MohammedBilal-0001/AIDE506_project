@@ -20,7 +20,7 @@ jobs:
           docker run --rm \
             -e KOYEB_API_TOKEN=${{ secrets.KOYEB_API_TOKEN }} \
             koyeb/koyeb-cli service create aide-project-frontend \
-              acebm/frontend:latest \
+              --docker acebm/frontend:latest \
               --ports "3000:http" \
               --routes "/:3000" \
               --regions fra \
@@ -34,7 +34,7 @@ jobs:
           docker run --rm \
             -e KOYEB_API_TOKEN=${{ secrets.KOYEB_API_TOKEN }} \
             koyeb/koyeb-cli service create aide-project-backend1 \
-              acebm/backend1:latest \
+              --docker acebm/backend1:latest \
               --ports "5001:http" \
               --routes "/backend1:5001" \
               --regions fra \
@@ -45,7 +45,7 @@ jobs:
           docker run --rm \
             -e KOYEB_API_TOKEN=${{ secrets.KOYEB_API_TOKEN }} \
             koyeb/koyeb-cli service create aide-project-backend2 \
-              acebm/backend2:latest \
+              --docker acebm/backend2:latest \
               --ports "5002:http" \
               --routes "/backend2:5002" \
               --regions fra \
