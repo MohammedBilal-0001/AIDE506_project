@@ -15,38 +15,40 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Install Koyeb CLI
-        uses: koyeb-community/koyeb-actions@v2
-        with:
-          api_token: ${{ secrets.KOYEB_API_TOKEN }}
+      - name: Deploy Frontend (Docker CLI)
+        run: |
+          docker run --rm \
+            -e KOYEB_API_TOKEN=${{ secrets.KOYEB_API_TOKEN }} \
+            koyeb/koyeb-cli service create aide-project-frontend \
+              acebm/frontend:latest \
+              --ports "3000:http" \
+              --routes "/:3000" \
+              --regions fra \
+              --env "REACT_APP_BACKEND1_URL=/backend1" \
+              --env "REACT_APP_BACKEND2_URL=/backend2" \
+              --min-scale 0 \
+              --max-scale 1
 
-      - name: Deploy Frontend
-        env:
-          DOCKERHUB_USERNAME: acebm  # Or use a secret if private
+      - name: Deploy Backend Services (Docker CLI)
         run: |
-          koyeb service create aide-project-frontend \
-            acebm/frontend:latest \
-            --ports "3000:http" \
-            --routes "/:3000" \
-            --regions fra \  # Fixed typo: 'regions' not 'regions'
-            --env "REACT_APP_BACKEND1_URL=/backend1" \
-            --env "REACT_APP_BACKEND2_URL=/backend2" \
-            --min-scale 0 \
-            --max-scale 1
-      - name: Deploy to Koyeb
-        env:
-          KOYEB_TOKEN: ${{ secrets.KOYEB_TOKEN }}  # GitHub Secret
-        run: |
-          koyeb  --token $KOYEB_TOKEN service create aide-project \
-            --docker ${{ env.DOCKERHUB_USERNAME }}/backend1:latest \
-            --docker ${{ env.DOCKERHUB_USERNAME }}/frontend:latest \
-            --docker ${{ env.DOCKERHUB_USERNAME }}/backend2:latest \
-            --ports "3000:http,5001:http,5002:http" \
-            --routes "/frontend:3000,/backend1:5001,/backend2:5002" \
-            --regions fra \
-            --env "NODE_ENV=production" \
-            --env "FLASK_ENV=production" \
-            --env "REACT_APP_BACKEND1_URL=/backend1" \
-            --env "REACT_APP_BACKEND2_URL=/backend2" \
-            --min-scale 0 \
-            --max-scale 1
+          docker run --rm \
+            -e KOYEB_API_TOKEN=${{ secrets.KOYEB_API_TOKEN }} \
+            koyeb/koyeb-cli service create aide-project-backend1 \
+              acebm/backend1:latest \
+              --ports "5001:http" \
+              --routes "/backend1:5001" \
+              --regions fra \
+              --env "NODE_ENV=production" \
+              --min-scale 0 \
+              --max-scale 1
+
+          docker run --rm \
+            -e KOYEB_API_TOKEN=${{ secrets.KOYEB_API_TOKEN }} \
+            koyeb/koyeb-cli service create aide-project-backend2 \
+              acebm/backend2:latest \
+              --ports "5002:http" \
+              --routes "/backend2:5002" \
+              --regions fra \
+              --env "FLASK_ENV=production" \
+              --min-scale 0 \
+              --max-scale 1
