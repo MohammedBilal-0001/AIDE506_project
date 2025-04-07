@@ -19,8 +19,6 @@ jobs:
         run: |
           
           docker run --rm \
-            koyeb/koyeb-cli app create churn-detection \
-              --token "${{ secrets.KOYEB_API_TOKEN }}"
             koyeb/koyeb-cli service create churn-detection/aide-project-frontend \
               --docker acebm/frontend:latest \
               --ports "3000:http" \
